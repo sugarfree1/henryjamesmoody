@@ -9,6 +9,8 @@ Telegram Mood Rating Bot
 import logging
 import csv
 import os
+import json
+import random
 from datetime import datetime
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
@@ -26,6 +28,14 @@ if not BOT_TOKEN:
 MORNING_HOUR = 8        # Hour to send the morning prompt (24h, local time)
 MORNING_MINUTE = 0
 LOG_FILE = "/data/mood_log.csv"   # Persistent volume mounted at /data
+
+# ── Load Hank Moody quotes ────────────────────────────────────────────────────
+QUOTES_FILE = os.path.join(os.path.dirname(__file__), "hank_quotes.json")
+with open(QUOTES_FILE, "r", encoding="utf-8") as f:
+    QUOTES = json.load(f)
+
+def random_quote(category: str) -> str:
+    return random.choice(QUOTES.get(category, ["..."]))
 
 # ── Logging ──────────────────────────────────────────────────────────────────
 logging.basicConfig(
@@ -46,15 +56,15 @@ MOODS = [
     ("🤩 Amazing",   "8"),
 ]
 
-RESPONSES = {
-    "1": "This is the part where most people reach for a drink. I say reach for something better — though I'm hardly one to talk. Hang in there, kid. 🥃",
-    "2": "Life's a cruel mistress. She'll chew you up, spit you out, and somehow you'll still find yourself crawling back. It gets better. Probably.",
-    "3": "Meh. The official state of modern existence. At least you're honest about it — that puts you ahead of ninety percent of the population.",
-    "4": "Okay. Not the stuff of great literature, but not a tragedy either. I've written worse endings. 🚬",
-    "5": "Fine is the most underrated word in the English language. The world was built by people who were just fine and showed up anyway.",
-    "6": "Good. Hold onto that. The universe has a sick sense of humor and won't let it last forever — so enjoy it while it's here. 😏",
-    "7": "Great? Look at you, you magnificent bastard. Don't waste it — do something worthy of the feeling.",
-    "8": "Amazing. I don't say this often, but I'm genuinely jealous. Go write something, call someone you love, or just sit with it. You've earned it. ✨",
+SCORE_TO_CATEGORY = {
+    "1": "terrible",
+    "2": "bad",
+    "3": "meh",
+    "4": "okay",
+    "5": "fine",
+    "6": "good",
+    "7": "great",
+    "8": "amazing",
 }
 
 # ── Keyboard ──────────────────────────────────────────────────────────────────
@@ -84,14 +94,14 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         "Every morning I'll drag myself out of whatever mess I'm in to ask how you're doing. "
         "It's the least I can do.\n\n"
         "You can also type /mood anytime — day or night, no judgment.\n\n"
-        "So. How are you feeling right now?",
+        f"_{random_quote('greetings')}_",
         parse_mode="Markdown",
         reply_markup=build_keyboard(),
     )
 
 async def mood_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(
-        "🌡️ *Talk to me. How's the soul holding up?*",
+        f"🌡️ _{random_quote('greetings')}_",
         parse_mode="Markdown",
         reply_markup=build_keyboard(),
     )
@@ -108,7 +118,8 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     log_mood(user.id, user.username or user.first_name, score)
 
     label = next(l for l, v in MOODS if v == score)
-    response = RESPONSES.get(score, "Thanks for sharing! 💙")
+    category = SCORE_TO_CATEGORY.get(score, "okay")
+    response = random_quote(category)
 
     await query.edit_message_text(
         f"You rated your mood: *{label}*\n\n{response}",
@@ -123,7 +134,7 @@ async def send_morning_prompt(context: ContextTypes.DEFAULT_TYPE) -> None:
         try:
             await context.bot.send_message(
                 chat_id=chat_id,
-                text="🌅 *Another day, another chance to get it right.*\n\nHow are you feeling this fine morning, you beautiful disaster?",
+                text=f"🌅 *{random_quote('greetings')}*",
                 parse_mode="Markdown",
                 reply_markup=build_keyboard(),
             )

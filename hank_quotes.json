@@ -1,0 +1,86 @@
+{
+  "greetings": [
+    "Another day, another chance to get it right. How are you feeling this fine morning, you beautiful disaster?",
+    "I've stared at a blank page long enough to know that some mornings just don't want to be written. How's yours going?",
+    "The sun came up again. Audacious of it, really. How are you holding up?",
+    "I once wrote an entire novel to avoid feeling my feelings. Therapy would've been cheaper. So — how are you feeling?",
+    "Life is short, coffee is hot, and I'm here asking about your mood. How are you?",
+    "I've been told I have a gift for showing up at the wrong time. Consider this the exception. How are you doing?",
+    "The world keeps spinning whether we're ready for it or not. Where are you landing today?",
+    "I woke up with the vague sense that today could go either way. Sound familiar? How are you feeling?",
+    "There's a particular kind of morning that smells like possibility and last night's mistakes. Which one is it for you?",
+    "I'm no therapist — God knows I need one — but I'm here. How are you doing today?"
+  ],
+  "terrible": [
+    "This is the part where most people reach for a drink. I say reach for something better — though I'm hardly one to talk. Hang in there, kid.",
+    "Rock bottom has a way of becoming the foundation for something better. At least that's what I tell myself on the bad days.",
+    "Some days the universe just has it out for you. The trick is not to take it personally. The universe is indiscriminate in its cruelty.",
+    "I've been to the dark place. It's crowded down there, which is oddly comforting. You're not alone.",
+    "The worst days are the ones that make the good ones mean something. Cold comfort, I know — but it's all I've got.",
+    "Even the best writers have days where every word feels wrong. This is just your rough draft. Revise tomorrow.",
+    "I won't insult you with silver linings. Today is terrible. Acknowledge it, sit with it, and then — when you're ready — get up."
+  ],
+  "bad": [
+    "Life's a cruel mistress. She'll chew you up, spit you out, and somehow you'll still find yourself crawling back. It gets better. Probably.",
+    "Bad days are the universe's way of reminding you that you're alive enough to feel things. Annoying, but true.",
+    "I've had more bad days than good ones and somehow I'm still here, still writing, still making terrible decisions with great conviction.",
+    "The thing about bad days is they end. Every single one of them. That's not nothing.",
+    "You're allowed to have a bad day without it meaning your whole life is bad. Don't let one chapter define the book.",
+    "I once spent three days convinced everything was falling apart. Turns out I just needed sleep and a decent meal. Start there.",
+    "Bad is not permanent. It just has terrible timing and an inflated sense of self-importance."
+  ],
+  "meh": [
+    "Meh. The official state of modern existence. At least you're honest about it — that puts you ahead of ninety percent of the population.",
+    "Somewhere between fine and falling apart lies the great grey middle. Welcome. Population: everyone who's paying attention.",
+    "Meh is underrated. It means you're not suffering, just... coasting. Sometimes coasting is exactly what's needed.",
+    "The ancient Greeks had no word for meh. I think that says something about the decline of civilization.",
+    "Neutrality has its own quiet dignity. Not every day needs to be a masterpiece.",
+    "Meh is the literary equivalent of a semicolon. Not quite one thing, not quite another. Still part of the sentence.",
+    "I've written entire chapters in a meh state. Some of them were my best work. Numbness has a clarity to it."
+  ],
+  "okay": [
+    "Okay. Not the stuff of great literature, but not a tragedy either. I've written worse endings.",
+    "Okay is what happens when life and expectations finally reach a negotiated settlement. Respect it.",
+    "You know what okay is? It's the foundation. Everything worth having got built on an okay day.",
+    "Okay means you're still in the game. And being in the game is the whole point.",
+    "I'll take okay over spectacular any day. Spectacular has a way of collapsing dramatically. Okay just quietly continues.",
+    "Okay is honest. There's more integrity in okay than in the performed happiness you see everywhere.",
+    "Okay is the quiet heroism of Tuesday afternoon. Nobody writes songs about it. They should."
+  ],
+  "fine": [
+    "Fine is the most underrated word in the English language. The world was built by people who were just fine and showed up anyway.",
+    "Fine is what I say when things are actually pretty decent but I don't want to jinx it.",
+    "Fine means the chaos has agreed to pause for a moment. Enjoy the intermission.",
+    "There's a version of fine that's actually wonderful in disguise. I think you might be living it.",
+    "Fine. That word carries the weight of a thousand unsaid things and also sometimes just means fine. Today it sounds like the good kind.",
+    "Fine is stability. And stability — boring, unglamorous stability — is what makes everything else possible.",
+    "Fine is the eye of the storm. Quiet, centered, holding. Not bad at all."
+  ],
+  "good": [
+    "Good. Hold onto that. The universe has a sick sense of humor and won't let it last forever — so enjoy it while it's here.",
+    "Good is better than it sounds. Most people spend their whole lives chasing good and calling it by fancier names.",
+    "I like good. Good is sustainable. Good doesn't crash and burn at three in the morning.",
+    "Good days are the ones worth writing about — not because they're dramatic, but because they remind you what normal should feel like.",
+    "Good. That's the word. Simple, solid, and true. Don't let anyone talk you out of it.",
+    "Good is the universe keeping its end of the bargain for once. Acknowledge it. Say thank you. Mean it.",
+    "There's a particular kind of good that snuck up on you without asking permission. That's the best kind."
+  ],
+  "great": [
+    "Great? Look at you, you magnificent bastard. Don't waste it — do something worthy of the feeling.",
+    "Great days are currency. Spend them wisely. Invest them in people and moments that deserve the interest.",
+    "I don't say this often, but: good for you. Genuinely. Now go do something with it.",
+    "Great is the thing writers spend their whole careers trying to put into words. You're living it. That's enough.",
+    "Great. Remember this feeling. Write it down somewhere. You'll want it back on the meh days.",
+    "That's the thing about great — it makes everything that came before it make sense.",
+    "Great is not the absence of problems. It's the presence of something strong enough to rise above them. Whatever that is for you — protect it."
+  ],
+  "amazing": [
+    "Amazing. I don't say this often, but I'm genuinely jealous. Go write something, call someone you love, or just sit with it. You've earned it.",
+    "Amazing is the thing you can't manufacture. It just arrives. Treat it like the rare, unrepeatable event it is.",
+    "You're amazing today? Then be relentlessly, unapologetically amazing. The world has enough people playing it safe.",
+    "Amazing days are the reason we put up with all the other ones. This is your payoff. Collect it.",
+    "I've chased amazing my entire life through words and whiskey and bad decisions. Nice to know it occasionally just shows up on its own.",
+    "Amazing. The word itself barely covers it. Live the rest of today like you mean it.",
+    "On the days when everything aligns and life feels worth the admission price — that's amazing. You're in one of those days. Don't look away."
+  ]
+}
