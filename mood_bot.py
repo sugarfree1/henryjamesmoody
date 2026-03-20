@@ -47,14 +47,14 @@ MOODS = [
 ]
 
 RESPONSES = {
-    "1": "I'm really sorry you're feeling that way 💙 Remember, tough moments pass. Take it one step at a time.",
-    "2": "That sounds rough. Be kind to yourself today 🫂",
-    "3": "A meh day — totally valid. Maybe something small can lift it a bit? ☕",
-    "4": "Okay is good enough! Steady as she goes 🚢",
-    "5": "Fine is underrated 🙂 Hope your day gets even better!",
-    "6": "Good vibes! Keep it going 😊",
-    "7": "Great mood — love to hear it! 🌟",
-    "8": "AMAZING! Share that energy with the world 🤩✨",
+    "1": "This is the part where most people reach for a drink. I say reach for something better — though I'm hardly one to talk. Hang in there, kid. 🥃",
+    "2": "Life's a cruel mistress. She'll chew you up, spit you out, and somehow you'll still find yourself crawling back. It gets better. Probably.",
+    "3": "Meh. The official state of modern existence. At least you're honest about it — that puts you ahead of ninety percent of the population.",
+    "4": "Okay. Not the stuff of great literature, but not a tragedy either. I've written worse endings. 🚬",
+    "5": "Fine is the most underrated word in the English language. The world was built by people who were just fine and showed up anyway.",
+    "6": "Good. Hold onto that. The universe has a sick sense of humor and won't let it last forever — so enjoy it while it's here. 😏",
+    "7": "Great? Look at you, you magnificent bastard. Don't waste it — do something worthy of the feeling.",
+    "8": "Amazing. I don't say this often, but I'm genuinely jealous. Go write something, call someone you love, or just sit with it. You've earned it. ✨",
 }
 
 # ── Keyboard ──────────────────────────────────────────────────────────────────
@@ -80,17 +80,18 @@ def log_mood(user_id: int, username: str, score: str) -> None:
 # ── Handlers ──────────────────────────────────────────────────────────────────
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(
-        "👋 Hi! I'm your *Mood Bot*.\n\n"
-        "Every morning I'll check in on how you're feeling.\n"
-        "You can also type /mood anytime to rate your mood now!\n\n"
-        "Let's start — how are you feeling right now?",
+        "👋 *Hank Moody here.* Well, not really — but close enough.\n\n"
+        "Every morning I'll drag myself out of whatever mess I'm in to ask how you're doing. "
+        "It's the least I can do.\n\n"
+        "You can also type /mood anytime — day or night, no judgment.\n\n"
+        "So. How are you feeling right now?",
         parse_mode="Markdown",
         reply_markup=build_keyboard(),
     )
 
 async def mood_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(
-        "🌡️ *Rate your current mood:*",
+        "🌡️ *Talk to me. How's the soul holding up?*",
         parse_mode="Markdown",
         reply_markup=build_keyboard(),
     )
@@ -122,7 +123,7 @@ async def send_morning_prompt(context: ContextTypes.DEFAULT_TYPE) -> None:
         try:
             await context.bot.send_message(
                 chat_id=chat_id,
-                text="☀️ *Good morning!*\n\nHow are you feeling today?",
+                text="🌅 *Another day, another chance to get it right.*\n\nHow are you feeling this fine morning, you beautiful disaster?",
                 parse_mode="Markdown",
                 reply_markup=build_keyboard(),
             )
