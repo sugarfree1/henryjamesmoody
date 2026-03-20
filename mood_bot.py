@@ -3,7 +3,7 @@ Telegram Mood Rating Bot
 ------------------------
 - Asks "Rate your current mood" every morning at 8:00 AM
 - Also responds to /start and /mood commands
-- Saves mood history to mood_log.csv
+- Saves mood history to /data/mood_log.csv (Railway persistent volume)
 """
 
 import logging
@@ -22,9 +22,10 @@ from telegram.ext import (
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
 if not BOT_TOKEN:
     raise RuntimeError("BOT_TOKEN environment variable is not set!")
-MORNING_HOUR = 8                    # Hour to send the morning prompt (24h, local time)
+
+MORNING_HOUR = 8        # Hour to send the morning prompt (24h, local time)
 MORNING_MINUTE = 0
-LOG_FILE = "mood_log.csv"
+LOG_FILE = "/data/mood_log.csv"   # Persistent volume mounted at /data
 
 # ── Logging ──────────────────────────────────────────────────────────────────
 logging.basicConfig(
@@ -63,7 +64,6 @@ def build_keyboard() -> InlineKeyboardMarkup:
         InlineKeyboardButton(label, callback_data=f"mood:{value}")
         for label, value in MOODS
     ]
-    # Arrange in rows of 2
     rows = [buttons[i : i + 2] for i in range(0, len(buttons), 2)]
     return InlineKeyboardMarkup(rows)
 
@@ -75,6 +75,7 @@ def log_mood(user_id: int, username: str, score: str) -> None:
         if not file_exists:
             writer.writerow(["timestamp", "user_id", "username", "mood_score"])
         writer.writerow([datetime.now().isoformat(), user_id, username, score])
+    logger.info(f"Logged mood {score} for {username}")
 
 # ── Handlers ──────────────────────────────────────────────────────────────────
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -116,7 +117,6 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 # ── Morning job ───────────────────────────────────────────────────────────────
 async def send_morning_prompt(context: ContextTypes.DEFAULT_TYPE) -> None:
     """Called by the job queue every morning — sends mood prompt to all known users."""
-    # bot_data["users"] is populated whenever someone chats with the bot
     users: set = context.bot_data.get("users", set())
     for chat_id in users:
         try:
@@ -139,14 +139,12 @@ async def track_user(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
 def main() -> None:
     app = Application.builder().token(BOT_TOKEN).build()
 
-    # Register user-tracking middleware on every update
     app.add_handler(CommandHandler("start", start), group=-1)
     app.add_handler(CommandHandler("start", track_user), group=-1)
     app.add_handler(CommandHandler("mood", mood_command))
     app.add_handler(CommandHandler("mood", track_user))
     app.add_handler(CallbackQueryHandler(button_callback))
 
-    # Schedule the daily morning message
     job_queue = app.job_queue
     job_queue.run_daily(
         send_morning_prompt,
