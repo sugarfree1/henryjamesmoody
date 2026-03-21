@@ -101,6 +101,9 @@ def log_mood(user_id: int, username: str, score: str) -> None:
 
 # ── Handlers ──────────────────────────────────────────────────────────────────
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    users: set = context.bot_data.setdefault("users", load_users())
+    users.add(update.effective_chat.id)
+    save_users(users)
     await update.message.reply_text(
         "👋 *Hank Moody here.* Well, not really — but close enough.\n\n"
         "Every morning I'll drag myself out of whatever mess I'm in to ask how you're doing. "
@@ -112,6 +115,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     )
 
 async def mood_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    users: set = context.bot_data.setdefault("users", load_users())
+    users.add(update.effective_chat.id)
+    save_users(users)
     await update.message.reply_text(
         f"🌡️ _{random_quote('greetings')}_",
         parse_mode="Markdown",
@@ -153,21 +159,12 @@ async def send_morning_prompt(context: ContextTypes.DEFAULT_TYPE) -> None:
         except Exception as e:
             logger.warning(f"Could not message {chat_id}: {e}")
 
-# Track users who interact with the bot and persist to disk
-async def track_user(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    if update.effective_user:
-        users: set = context.bot_data.setdefault("users", load_users())
-        users.add(update.effective_chat.id)
-        save_users(users)
-
 # ── Main ──────────────────────────────────────────────────────────────────────
 def main() -> None:
     app = Application.builder().token(BOT_TOKEN).build()
 
-    app.add_handler(CommandHandler("start", start), group=-1)
-    app.add_handler(CommandHandler("start", track_user), group=-1)
+    app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("mood", mood_command))
-    app.add_handler(CommandHandler("mood", track_user))
     app.add_handler(CallbackQueryHandler(button_callback))
 
     job_queue = app.job_queue
