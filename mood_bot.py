@@ -11,7 +11,7 @@ import csv
 import os
 import json
 import random
-from datetime import datetime
+from datetime import datetime, time, timezone
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
     Application,
@@ -25,9 +25,10 @@ BOT_TOKEN = os.environ.get("BOT_TOKEN")
 if not BOT_TOKEN:
     raise RuntimeError("BOT_TOKEN environment variable is not set!")
 
-MORNING_HOUR = 8        # Hour to send the morning prompt (24h, local time)
+MORNING_HOUR_UTC = 7   # 8:00 AM Valencia (UTC+1 winter) — change to 6 in summer (UTC+2)
 MORNING_MINUTE = 0
-LOG_FILE = "/data/mood_log.csv"   # Persistent volume mounted at /data
+LOG_FILE = "/data/mood_log.csv"    # Persistent volume mounted at /data
+USERS_FILE = "/data/users.json"    # Persists chat IDs across restarts
 
 # ── Load Hank Moody quotes ────────────────────────────────────────────────────
 QUOTES_FILE = os.path.join(os.path.dirname(__file__), "hank_quotes.json")
@@ -67,7 +68,18 @@ SCORE_TO_CATEGORY = {
     "8": "amazing",
 }
 
-# ── Keyboard ──────────────────────────────────────────────────────────────────
+# ── Persistent user tracking ──────────────────────────────────────────────────
+def load_users() -> set:
+    if os.path.isfile(USERS_FILE):
+        with open(USERS_FILE, "r", encoding="utf-8") as f:
+            return set(json.load(f))
+    return set()
+
+def save_users(users: set) -> None:
+    with open(USERS_FILE, "w", encoding="utf-8") as f:
+        json.dump(list(users), f)
+
+
 def build_keyboard() -> InlineKeyboardMarkup:
     """Build a 2-column inline keyboard of mood options."""
     buttons = [
@@ -129,7 +141,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 # ── Morning job ───────────────────────────────────────────────────────────────
 async def send_morning_prompt(context: ContextTypes.DEFAULT_TYPE) -> None:
     """Called by the job queue every morning — sends mood prompt to all known users."""
-    users: set = context.bot_data.get("users", set())
+    users: set = load_users()
     for chat_id in users:
         try:
             await context.bot.send_message(
@@ -141,11 +153,12 @@ async def send_morning_prompt(context: ContextTypes.DEFAULT_TYPE) -> None:
         except Exception as e:
             logger.warning(f"Could not message {chat_id}: {e}")
 
-# Track users who interact with the bot so we know who to message
+# Track users who interact with the bot and persist to disk
 async def track_user(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if update.effective_user:
-        users: set = context.bot_data.setdefault("users", set())
+        users: set = context.bot_data.setdefault("users", load_users())
         users.add(update.effective_chat.id)
+        save_users(users)
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 def main() -> None:
@@ -160,9 +173,7 @@ def main() -> None:
     job_queue = app.job_queue
     job_queue.run_daily(
         send_morning_prompt,
-        time=datetime.now().replace(
-            hour=MORNING_HOUR, minute=MORNING_MINUTE, second=0, microsecond=0
-        ).timetz(),
+        time=time(hour=MORNING_HOUR_UTC, minute=MORNING_MINUTE, tzinfo=timezone.utc),
         name="morning_mood",
     )
 
