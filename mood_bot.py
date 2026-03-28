@@ -9,9 +9,14 @@ Telegram Mood Rating Bot
 import logging
 import csv
 import os
+import io
 import json
 import random
-from datetime import datetime, time, timezone
+from datetime import datetime, time, timezone, timedelta
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
     Application,
@@ -144,7 +149,80 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         parse_mode="Markdown",
     )
 
-# ── Morning job ───────────────────────────────────────────────────────────────
+# ── Chart generation ──────────────────────────────────────────────────────────
+MOOD_LABELS = {1:"Terrible",2:"Bad",3:"Meh",4:"Okay",5:"Fine",6:"Good",7:"Great",8:"Amazing"}
+MOOD_COLORS = {1:"#E24B4A",2:"#D85A30",3:"#BA7517",4:"#888780",5:"#1D9E75",6:"#378ADD",7:"#7F77DD",8:"#D4537E"}
+
+def generate_week_chart(username: str) -> io.BytesIO | None:
+    """Read CSV, filter last 7 days for username, return PNG bytes or None."""
+    if not os.path.isfile(LOG_FILE):
+        return None
+
+    cutoff = datetime.now() - timedelta(days=7)
+    timestamps, scores = [], []
+
+    with open(LOG_FILE, "r", encoding="utf-8") as f:
+        reader = csv.reader(f)
+        next(reader, None)  # skip header
+        for row in reader:
+            if len(row) < 4:
+                continue
+            ts_str, _, uname, score_str = row[0], row[1], row[2], row[3]
+            if uname != username:
+                continue
+            try:
+                ts = datetime.fromisoformat(ts_str)
+                score = int(score_str)
+            except ValueError:
+                continue
+            if ts >= cutoff:
+                timestamps.append(ts)
+                scores.append(score)
+
+    if not timestamps:
+        return None
+
+    fig, ax = plt.subplots(figsize=(10, 5))
+    fig.patch.set_facecolor("#1a1a2e")
+    ax.set_facecolor("#16213e")
+
+    ax.plot(timestamps, scores, color="#378ADD", linewidth=2, zorder=2)
+    for ts, score in zip(timestamps, scores):
+        ax.scatter(ts, score, color=MOOD_COLORS.get(score, "#888780"), s=80, zorder=3)
+
+    ax.set_ylim(0.5, 8.5)
+    ax.set_yticks(range(1, 9))
+    ax.set_yticklabels(
+        [f"{i} · {MOOD_LABELS[i]}" for i in range(1, 9)],
+        color="#aaaaaa", fontsize=9
+    )
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%b %d"))
+    ax.xaxis.set_major_locator(mdates.DayLocator())
+    plt.xticks(color="#aaaaaa", fontsize=9, rotation=30)
+    ax.tick_params(axis="both", length=0)
+    ax.grid(axis="y", color="#ffffff", alpha=0.07, linestyle="--")
+    ax.grid(axis="x", color="#ffffff", alpha=0.04, linestyle="--")
+    for spine in ax.spines.values():
+        spine.set_visible(False)
+
+    ax.set_title(f"Mood — last 7 days · @{username}", color="#dddddd", fontsize=12, pad=14)
+
+    buf = io.BytesIO()
+    plt.savefig(buf, format="png", bbox_inches="tight", dpi=150, facecolor=fig.get_facecolor())
+    plt.close(fig)
+    buf.seek(0)
+    return buf
+
+async def week_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    username = update.effective_user.username or update.effective_user.first_name
+    await update.message.reply_text("📊 Generating your weekly mood chart...")
+    buf = generate_week_chart(username)
+    if buf is None:
+        await update.message.reply_text("No mood entries found for the past 7 days. Use /mood to log some!")
+        return
+    await update.message.reply_photo(photo=buf, caption=f"_{random_quote('greetings')}_", parse_mode="Markdown")
+
+
 async def send_morning_prompt(context: ContextTypes.DEFAULT_TYPE) -> None:
     """Called by the job queue every morning — sends mood prompt to all known users."""
     users: set = load_users()
@@ -165,6 +243,7 @@ def main() -> None:
 
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("mood", mood_command))
+    app.add_handler(CommandHandler("week", week_command))
     app.add_handler(CallbackQueryHandler(button_callback))
 
     job_queue = app.job_queue
